@@ -5,7 +5,7 @@
 var express = require('express')
 var app = express()
 
-const { isValid, format, toDate, parse, parseISO } = require('date-fns')
+const { isValid, isDate, format, toDate, parse, parseISO } = require('date-fns')
 const { enUS } = require('date-fns/locale')
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
@@ -21,18 +21,14 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/views/index.html')
 })
 
-// your first API endpoint...
-app.get('/api/hello', function (req, res) {
-  res.json({ greeting: 'hello API' })
-})
-
-app.get('/api/:date', function (req, res) {
-  const { date } = req.params
+function formatDate(date) {
   const isDateStr = /^\d{4}-\d{2}-\d{2}$/.test(date)
   let converted
 
   try {
-    if (isDateStr) {
+    if (isDate(date)) {
+      converted = toDate(date)
+    } else if (isDateStr) {
       converted = toDate(parse(date, 'yyyy-MM-dd', new Date()))
     } else if (/^\d+$/.test(date)) {
       converted = toDate(parseInt(date, 10))
@@ -42,16 +38,24 @@ app.get('/api/:date', function (req, res) {
   }
 
   if (!isValid(converted)) {
-    return res.json({ error: 'Invalid Date' })
+    return { error: 'Invalid Date' }
   }
 
-  return res.json({
+  return {
     unix: converted.getTime(),
     utc: format(
       parseISO(converted.toISOString()),
       'iii, d MMM yyyy HH:mm:ss'
     ).concat(' GMT'),
-  })
+  }
+}
+
+app.get('/api/', (req, res) => {
+  return res.json(formatDate(new Date()))
+})
+
+app.get('/api/:date', function (req, res) {
+  return res.json(formatDate(req.params.date))
 })
 
 // listen for requests :)
