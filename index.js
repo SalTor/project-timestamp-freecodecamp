@@ -26,14 +26,14 @@ function formatDate(date) {
   let converted
 
   try {
-    if (isDate(new Date(date))) {
-      converted = toDate(new Date(date))
-    } else if (isDate(date)) {
+    if (isDate(date)) {
       converted = toDate(date)
     } else if (isDateStr) {
       converted = toDate(parse(date, 'yyyy-MM-dd', new Date()))
     } else if (/^\d+$/.test(date)) {
       converted = toDate(parseInt(date, 10))
+    } else if (isDate(new Date(date))) {
+      converted = toDate(new Date(date))
     }
   } catch (error) {
     console.log(error)
