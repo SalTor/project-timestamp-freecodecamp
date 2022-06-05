@@ -26,7 +26,9 @@ function formatDate(date) {
   let converted
 
   try {
-    if (isDate(date)) {
+    if (isDate(new Date(date))) {
+      converted = toDate(new Date(date))
+    } else if (isDate(date)) {
       converted = toDate(date)
     } else if (isDateStr) {
       converted = toDate(parse(date, 'yyyy-MM-dd', new Date()))
